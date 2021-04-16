@@ -41,7 +41,7 @@ class Dictionary(object):
         self.lowercase = lowercase
         self.uppercase = uppercase
         self.dictionaryFiles = [File(path) for path in self.paths]
-        self.generate()
+
 
     @property
     def extensions(self):
@@ -63,59 +63,29 @@ class Dictionary(object):
     def quote(cls, string):
         return urllib.parse.quote(string, safe=":/~?%&+-=$!@^*()[]{}<>;'\"|\\,._")
 
-    """
-    Dictionary.generate() behaviour
-
-    Classic dirsearch wordlist:
-      1. If %EXT% keyword is present, append one with each extension REPLACED.
-      2. If the special word is no present, append line unmodified.
-
-    Forced extensions wordlist (NEW):
-      This type of wordlist processing is a mix between classic processing
-      and DirBuster processing.
-          1. If %EXT% keyword is present in the line, immediately process as "classic dirsearch" (1).
-          2. If the line does not include the special word AND is NOT terminated by a slash,
-            append one with each extension APPENDED (line.ext) and ONLYE ONE with a slash.
-          3. If the line does not include the special word and IS ALREADY terminated by slash,
-            append line unmodified.
-    """
-
     def generate(self):
         reext = re.compile('\%ext\%', re.IGNORECASE).sub
         reextdot = re.compile('\.\%ext\%', re.IGNORECASE).sub
         exclude = re.findall
         result = []
-
-
-        # Enable to use multiple dictionaries at once
         for dictFile in self.dictionaryFiles:
             for line in list(dict.fromkeys(dictFile.getLines())):
                 if line.startswith("/"):
                     line = line[1:]
-                
-                # Check if the line is having the %NOFORCE% keyword
                 if "%noforce%" in line.lower():
                     noforce = True
                 else:
                     noforce = False
-
-                # Skip comments
                 if line.lstrip().startswith("#"):
                     continue
-
-                # Skip if the path is containing excluded extensions
                 if len(self._excludeExtensions):
                     matched = False
-                    
                     for excludeExtension in self._excludeExtensions:
                         if len(exclude("." + excludeExtension, line)):
                             matched = True
                             break
-                            
                     if matched:
                         continue
-
-                # Classic dirsearch wordlist processing (with %EXT% keyword)
                 if "%ext%" in line.lower():
                     for extension in self._extensions:
                         if self._noDotExtensions:
@@ -148,15 +118,11 @@ class Dictionary(object):
                 # Append line unmodified.
                 else:
                     result.append(self.quote(line))
-                    
-        # Adding prefixes for finding private pages etc
         if self._prefixes:
             for res in list(dict.fromkeys(result)):
                 for pref in self._prefixes:
                     if not res.startswith(pref): 
                         result.append(pref + res)
-
-        # Adding suffixes for finding backups etc
         if self._suffixes:
             for res in list(dict.fromkeys(result)):
                 if not res.rstrip().endswith("/"):
@@ -172,36 +138,4 @@ class Dictionary(object):
 
         else:
             self.entries = list(dict.fromkeys(result))
-
-        del result
-
-    def regenerate(self):
-        self.generate()
-        self.reset()
-
-    def nextWithIndex(self, basePath=None):
-        self.condition.acquire()
-
-        try:
-            result = self.entries[self.currentIndex]
-
-        except IndexError:
-            self.condition.release()
-            raise StopIteration
-
-        self.currentIndex = self.currentIndex + 1
-        currentIndex = self.currentIndex
-        self.condition.release()
-        return currentIndex, result
-
-    def __next__(self, basePath=None):
-        _, path = self.nextWithIndex(basePath)
-        return path
-
-    def reset(self):
-        self.condition.acquire()
-        self.currentIndex = 0
-        self.condition.release()
-
-    def __len__(self):
-        return len(self.entries)
+        return self.entries

@@ -16,8 +16,10 @@
                             data=self.config.data,
                         )
 '''
+
+
 httpmethod = "GET" # GET post
-dicpath = "db/dic.txt" #字典位置
+dicpath = ["db/dic.txt"] #字典位置
 useRandomAgents = False 
 cookie = ""
 data = ""
@@ -32,11 +34,23 @@ requestByHostname=False
 data = None
 useragent = None
 threadsCount = 1
-
+'''
+Dictionary(self.config.dicpath, self.config.extensions, self.config.suffixes, 
+                                     self.config.prefixes, self.config.lowercase, self.config.uppercase, 
+                                     self.config.forceExtensions, self.config.noDotExtensions, 
+                                     self.config.excludeExtensions)
+['db/dicc.txt'] ['*'] [] [] False False False False []
+'''
 extensions = ['php','jsp','jsp','jspx','html','htm','js','asp','aspx']
 excludeStatusCodes = [500,502]
 includeStatusCodes = [200,301]
 excludeTexts = []
 excludeRegexps = []
 testFailPath = None #自定义随机目录匹配404
-
+suffixes = []
+prefixes = []
+lowercase = False
+uppercase = False
+forceExtensions = False
+noDotExtensions = False
+excludeExtensions = []

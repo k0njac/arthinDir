@@ -33,8 +33,13 @@ class Controller(object):
             self.excludeRegexps = self.config.excludeRegexps
             
             self.httpmethod = self.config.httpmethod.lower()
-            self.dicpath = (FileUtils.buildPath(self.script_path,self.config.dicpath))
-            self.dictionary = (FileUtils.getLines(self.dicpath))
+            #self.dicpath = (FileUtils.buildPath(self.script_path,self.config.dicpath))
+            self.Readdictionary = Dictionary(self.config.dicpath, self.config.extensions, self.config.suffixes, 
+                                     self.config.prefixes, self.config.lowercase, self.config.uppercase, 
+                                     self.config.forceExtensions, self.config.noDotExtensions, 
+                                     self.config.excludeExtensions)
+            self.dictionary =self.Readdictionary.generate()
+            #print(self.dictionary)
             self.urlList =  FileUtils.getLines(
                     FileUtils.buildPath(self.script_path, "target.txt")
                 )
@@ -45,6 +50,7 @@ class Controller(object):
             self.scannerList = {}#存储self.scanners
             self.fuzzList = {}
             scanFlag = True
+            badUrl = []
             if self.config.useRandomAgents:
                 self.randomAgents = FileUtils.getLines(
                     FileUtils.buildPath(self.script_path, "db", "user-agents.txt")
@@ -76,7 +82,6 @@ class Controller(object):
                             matchCallbacks = [self.matchCallback]
                             notFoundCallbacks = [self.notFoundCallback]
                             errorCallbacks = [self.errorCallback, self.appendErrorLog]
-
                             self.fuzzer = Fuzzer(
                                 self.requester,
                                 self.dictionary,
@@ -87,18 +92,23 @@ class Controller(object):
                                 notFoundCallbacks=notFoundCallbacks,
                                 errorCallbacks=errorCallbacks,
                             )
+
                             self.fuzzer.setupScanners()
                             self.fuzzList[url] = self.fuzzer
                             #self.scannerList[url]=self.fuzzer.setupScanners()
                         else:
+                           # print(self.reqList)
                             self.requester =self.reqList[url]
                             self.fuzzer = self.fuzzList[url]
                             #self.scannerList[url]=self.fuzzer.setupScanners()
+                        #logger.debug("[+]scan:%s %s"%(url,currentdic))
                         self.fuzzer.start(currentdic)
-                    except RequestException as e:
+                    except:
                         logger.debug("[-]Error:%s timeout"%(url))
-                        self.urlList.remove(url)
-                        break
+                        badUrl.append(url)
+                for bad in badUrl:
+                    self.urlList.remove(bad)
+                badUrl=[]
                 scanFlag = False
                 if self.config.useRandomAgents:
                         self.requester.setRandomAgents(self.randomAgents)

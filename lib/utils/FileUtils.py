@@ -110,6 +110,7 @@ class FileUtils(object):
 
     @staticmethod
     def getLines(fileName):
+
         with open(fileName, "r", errors="replace") as fd:
             return fd.read().splitlines()
 
