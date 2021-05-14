@@ -55,10 +55,11 @@ class Controller(object):
                 self.randomAgents = FileUtils.getLines(
                     FileUtils.buildPath(self.script_path, "db", "user-agents.txt")
                 )
-            logger.debug("[+]check urlList.超时的会移出扫描列表")
+            print("[+]check urlList.超时的会移出扫描列表")
             for currentdic in self.dictionary:
                # print(currentdic)
                 for url in self.urlList:
+                    print("[+]scan:",url+"/"+currentdic)
                     try:
                         if scanFlag:
                             self.requester = Requester(
