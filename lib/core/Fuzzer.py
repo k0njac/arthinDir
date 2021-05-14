@@ -101,8 +101,8 @@ class Fuzzer(object):
         return self.defaultScanner
 
     def start(self,path):
-        status, response = self.scan(path)
-        result = Path(path=path, status=status, response=response)
+        status, response,host = self.scan(path)
+        result = Path(path=path, status=status, response=response,host=host)
         try:
             if status:
                     self.matches.append(result)
@@ -111,7 +111,7 @@ class Fuzzer(object):
             else:
                 pass
         except RequestException as e:
-            logger.debug("sth error")
+            print(e)
 
     def play(self):
         self.playEvent.set()
@@ -131,7 +131,7 @@ class Fuzzer(object):
         result = None
         if self.getScannerFor(path).scan(path, response):
             result = None if response.status == 404 else response.status
-        return result, response
+        return result, response,self.requester.host
 
     def isRunning(self):
         return self.running

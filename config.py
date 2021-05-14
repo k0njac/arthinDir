@@ -20,6 +20,7 @@
 
 httpmethod = "GET" # GET post
 dicpath = ["db/dic.txt"] #字典位置
+resultFile = "report/result.txt" #结果位置
 useRandomAgents = False 
 cookie = ""
 data = ""
