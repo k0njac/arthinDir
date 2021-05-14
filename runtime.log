@@ -1,5 +1,0 @@
-2021-05-14 13:16:15.582 | DEBUG    | lib.controller.controller:__init__:58 - [+]check urlList.超时的会移出扫描列表
-2021-05-14 13:21:55.154 | DEBUG    | lib.controller.controller:__init__:58 - [+]check urlList.超时的会移出扫描列表
-2021-05-14 13:22:34.093 | DEBUG    | lib.controller.controller:__init__:104 - [-]Error:https://openapi.linkstars.com timeout
-2021-05-14 13:22:34.911 | DEBUG    | lib.controller.controller:__init__:104 - [-]Error:https://xl.linkstars.com timeout
-2021-05-14 13:22:35.332 | DEBUG    | lib.controller.controller:__init__:104 - [-]Error:https://www.linkstars.com timeout

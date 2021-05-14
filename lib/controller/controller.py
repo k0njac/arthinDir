@@ -59,7 +59,7 @@ class Controller(object):
             for currentdic in self.dictionary:
                # print(currentdic)
                 for url in self.urlList:
-                    print("[+]scan:",url+"/"+currentdic)
+                    print("[+]scanTarget:",url+"/"+currentdic)
                     try:
                         if scanFlag:
                             self.requester = Requester(
