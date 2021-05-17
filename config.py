@@ -21,12 +21,13 @@
 httpmethod = "GET" # GET post
 dicpath = ["db/dic.txt"] #字典位置
 resultFile = "report/result.txt" #结果位置
+pool =500 #线程池的数量
 useRandomAgents = False 
 cookie = ""
 data = ""
 maxRetries = 2
 delay = 0
-timeout = 10
+timeout = 3
 ip =None 
 proxy = None
 proxylist = None
@@ -42,7 +43,7 @@ Dictionary(self.config.dicpath, self.config.extensions, self.config.suffixes,
                                      self.config.excludeExtensions)
 ['db/dicc.txt'] ['*'] [] [] False False False False []
 '''
-extensions = ['php','jsp','jsp','jspx','html','htm','js','asp','aspx']
+extensions = []
 excludeStatusCodes = [500,502]
 includeStatusCodes = [200,301]
 excludeTexts = []

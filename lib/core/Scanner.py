@@ -47,6 +47,7 @@ class Scanner(object):
 
     def setup(self):
         firstPath = self.preffix + self.testPath + self.suffix
+        print("[+]:",firstPath)
         firstResponse = self.requester.request(firstPath)
         self.invalidStatus = firstResponse.status
         

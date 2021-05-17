@@ -21,6 +21,7 @@ import threading
 from lib.connection.RequestException import RequestException
 from .Path import *
 from .Scanner import *
+from concurrent.futures import ThreadPoolExecutor
 
 
 class Fuzzer(object):
@@ -65,11 +66,15 @@ class Fuzzer(object):
     def setupScanners(self):
         if len(self.scanners):
             self.scanners = {}
-
-        self.defaultScanner = Scanner(self.requester, self.testFailPath)
-        self.scanners["/"] = Scanner(self.requester, self.testFailPath, suffix="/")
-        self.scanners["dotfiles"] = Scanner(self.requester, self.testFailPath, preffix=".")
-
+        
+        Pool = ThreadPoolExecutor(10)
+        self.defaultScanner = Pool.submit(Scanner,self.requester, self.testFailPath).result()
+        self.scanners["/"] = Pool.submit(Scanner,self.requester, self.testFailPath, suffix="/").result()
+        self.scanners["dotfiles"] = Pool.submit(Scanner,self.requester, self.testFailPath, preffix=".").result()
+        #self.defaultScanner = Scanner(self.requester, self.testFailPath)
+        #self.scanners["/"] = Scanner(self.requester, self.testFailPath, suffix="/")
+        #self.scanners["dotfiles"] = Scanner(self.requester, self.testFailPath, preffix=".")
+        Pool.shutdown(wait=True)
         for extension in self.config.extensions:
             self.scanners[extension] = Scanner(
                 self.requester, self.testFailPath, "." + extension

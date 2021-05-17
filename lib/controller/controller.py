@@ -3,12 +3,14 @@ import gc
 import os
 import sys
 import time
-import re
 import urllib.parse
 from loguru import logger
 from lib.utils import FileUtils
 from lib.core import Dictionary,Fuzzer
-from lib.connection import Requester, RequestException
+from lib.connection import Requester
+from concurrent.futures import ThreadPoolExecutor
+
+
 class SkipTargetInterrupt(Exception):
     pass
 class Controller(object):
@@ -51,16 +53,19 @@ class Controller(object):
             self.fuzzList = {}
             scanFlag = True
             badUrl = []
+            
             if self.config.useRandomAgents:
                 self.randomAgents = FileUtils.getLines(
                     FileUtils.buildPath(self.script_path, "db", "user-agents.txt")
                 )
             print("[+]check urlList.超时的会移出扫描列表")
+            pool  = ThreadPoolExecutor(config.pool)
             for currentdic in self.dictionary:
                # print(currentdic)
                 for url in self.urlList:
                     print("[+]scanTarget:",url+"/"+currentdic)
                     try:
+                    # for i in range(1):
                         if scanFlag:
                             self.requester = Requester(
                                     url,
@@ -99,10 +104,12 @@ class Controller(object):
                         else:
                             self.requester =self.reqList[url]
                             self.fuzzer = self.fuzzList[url]
-                        self.fuzzer.start(currentdic)
+                        pool.submit(self.fuzzer.start,currentdic)
+                   
                     except:
                         logger.debug("[-]Error:%s timeout"%(url))
                         badUrl.append(url)
+                    
                 if scanFlag:
                     for bad in badUrl:
                         self.urlList.remove(bad)
@@ -110,6 +117,7 @@ class Controller(object):
                 scanFlag = False
                 if self.config.useRandomAgents:
                         self.requester.setRandomAgents(self.randomAgents)
+            pool.shutdown(wait=False)
             FileUtils.writeLines(config.resultFile,self.resultList)
 
 
